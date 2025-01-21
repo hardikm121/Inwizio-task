@@ -92,8 +92,9 @@ INSERT INTO Enrollments (student_id, course_id, enrollment_date, grade) VALUES
 (5, 1, '2023-09-15', 'A'),
 (5, 2, '2023-09-16', 'A');
 
+### SQL Queries-
 
-SQL Queries-
+```sql
 
 1.Find the Total Number of Students in Each Department-
 
