@@ -1,10 +1,6 @@
 # Inwizio-task1 
 # University Database schema
 
-# University Database
-
-This repository contains SQL scripts to create and manage a `University` database with tables for students, professors, departments, courses, and enrollments.
-
 ## SQL Commands
 
 ### 1. Create Database and Tables
@@ -95,6 +91,9 @@ INSERT INTO Enrollments (student_id, course_id, enrollment_date, grade) VALUES
 (4, 5, '2023-09-14', 'B'),
 (5, 1, '2023-09-15', 'A'),
 (5, 2, '2023-09-16', 'A');
+
+
+SQL Queries-
 
 1.Find the Total Number of Students in Each Department-
 
