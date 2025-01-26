@@ -586,3 +586,223 @@ LEFT JOIN OrderDetails od ON p.product_id = od.product_id
 WHERE od.order_id IS NULL;
 ```
 
+
+# Inwizio-task4
+
+## HR Management Database Schema
+
+### SQL Commands
+
+#### 1. Create Database and Tables
+
+```sql
+CREATE DATABASE HRmanagement;
+USE HRmanagement;
+
+CREATE TABLE Employees (
+    EmployeeID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Email VARCHAR(100),
+    Phone VARCHAR(15),
+    HireDate DATE,
+    DepartmentID INT,
+    ManagerID INT,
+    Salary DECIMAL(10, 2),
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
+    FOREIGN KEY (ManagerID) REFERENCES Employees(EmployeeID)
+);
+
+
+CREATE TABLE Departments (
+    DepartmentID INT AUTO_INCREMENT PRIMARY KEY,
+    DepartmentName VARCHAR(100),
+    ManagerID INT
+);
+
+
+
+CREATE TABLE PerformanceReviews (
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
+    EmployeeID INT,
+    ReviewDate DATE,
+    PerformanceScore VARCHAR(20),
+    Comments TEXT,
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+);
+
+
+CREATE TABLE Payroll (
+    PayrollID INT AUTO_INCREMENT PRIMARY KEY,
+    EmployeeID INT,
+    PaymentDate DATE,
+    Amount DECIMAL(10, 2),
+    PaymentMethod VARCHAR(20),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+);
+
+
+ALTER TABLE Employees
+ADD CONSTRAINT fk_manager
+FOREIGN KEY (ManagerID) REFERENCES Employees(EmployeeID);
+
+
+
+INSERT INTO Departments (DepartmentName, ManagerID) VALUES
+('Human Resources', 101),
+('Finance', 102),
+('Information Technology', 103),
+('Sales and Marketing', 104),
+('Customer Support', 105),
+('Operations', 106);
+
+
+
+
+INSERT INTO Employees (FirstName, LastName, Email, Phone, HireDate, DepartmentID, ManagerID, Salary)
+VALUES
+('Rohan', 'Gupta', 'rohan.gupta@gmail.com', '9812345678', '2021-11-12', 3, NULL, 85000), 
+('Sneha', 'Iyer', 'sneha.iyer@gmail.com', '9845678901', '2020-07-20', 4, NULL, 90000),  
+('Arjun', 'Mehta', 'arjun.mehta@gmail.com', '9901234567', '2023-06-01', 5, NULL, 55000),
+('Kavita', 'Patel', 'kavita.patel@gmail.com', '9876509876', '2019-01-01', 6, NULL, 80000); 
+
+INSERT INTO Employees (FirstName, LastName, Email, Phone, HireDate, DepartmentID, ManagerID, Salary)
+VALUES
+('Amit', 'Sharma', 'amit.sharma@gmail.com', '9876543210', '2022-05-10', 1, 24, 75000), 
+('Priya', 'Singh', 'priya.singh@gmail.com', '9823456789', '2023-02-15', 2, NULL, 60000), 
+('Rahul', 'Verma', 'rahul.verma@gmail.com', '9876540987', '2022-12-15', 2, 24, 72000), 
+('Anjali', 'Reddy', 'anjali.reddy@gmail.com', '9845676543', '2023-08-10', 4, 22, 58000), 
+('Vikram', 'Deshmukh', 'vikram.deshmukh@gmail.com', '9812341122', '2020-03-05', 1, 21, 77000), 
+('Pooja', 'Kulkarni', 'pooja.kulkarni@gmail.com', '9876578945', '2023-07-01', 3, 22, 64000); 
+
+
+
+INSERT INTO PerformanceReviews (EmployeeID, ReviewDate, PerformanceScore, Comments)
+VALUES
+(37, '2023-01-10', 'Excellent', 'Consistently exceeds expectations.'),
+(38, '2023-03-15', 'Good', 'Shows potential but needs improvement in teamwork.'),
+(39, '2023-02-12', 'Average', 'Meets expectations but lacks initiative.'),
+(40, '2023-04-25', 'Excellent', 'Outstanding performance in team projects.'),
+(41, '2023-05-30', 'Good', 'Displays good work ethic but requires mentoring.'),
+(42, '2022-12-20', 'Average', 'Handles responsibilities adequately.'),
+(21, '2023-06-15', 'Poor', 'Needs to work on punctuality and consistency.'),
+(22, '2023-08-20', 'Good', 'Proactive and helpful in resolving issues.'),
+(23, '2023-03-05', 'Excellent', 'A reliable and hardworking team player.'),
+(24, '2023-07-15', 'Good', 'Demonstrates good progress and commitment.');
+
+
+INSERT INTO Payroll (EmployeeID, PaymentDate, Amount, PaymentMethod) 
+VALUES 
+(37, '2023-01-31', 75000, 'Bank Transfer'),
+(41, '2023-01-31', 60000, 'Check'),
+(38, '2023-01-31', 85000, 'Bank Transfer'),
+(39, '2023-01-31', 90000, 'UPI'),
+(21, '2023-01-31', 55000, 'Bank Transfer'),
+(42, '2023-01-31', 80000, 'Check'),
+(22, '2023-01-31', 72000, 'UPI'),
+(40, '2023-01-31', 58000, 'Bank Transfer'),
+(23, '2023-01-31', 77000, 'Check'),
+(24, '2023-01-31', 64000, 'Bank Transfer');
+```
+
+#### SQL Queries
+
+1. **Retrieve the names and contact details of employees hired after January 1, 2023**
+
+```sql
+SELECT FirstName, LastName, Email, Phone
+FROM Employees
+WHERE HireDate > '2023-01-01';
+```
+
+2. **Find the total payroll amount paid to each department**
+
+```sql
+SELECT e.DepartmentID, d.DepartmentName, SUM(p.Amount) AS TotalPayroll
+FROM Payroll p
+JOIN Employees e ON p.EmployeeID = e.EmployeeID
+JOIN Departments d ON e.DepartmentID = d.DepartmentID
+GROUP BY e.DepartmentID, d.DepartmentName;
+```
+
+3. **List all employees who have not been assigned a manager**
+
+```sql
+SELECT FirstName, LastName, Email, Phone
+FROM Employees
+WHERE ManagerID IS NULL;
+```
+
+4. ** Retrieve the highest salary in each department along with the employee’s name**
+
+```sql
+SELECT e.DepartmentID, d.DepartmentName, e.FirstName, e.LastName, e.Salary AS HighestSalary
+FROM Employees e
+JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE e.Salary = (
+    SELECT MAX(Salary)
+    FROM Employees
+    WHERE DepartmentID = e.DepartmentID
+)
+ORDER BY e.DepartmentID;
+```
+
+5. **Find the most recent performance review for each employee**
+
+```sql
+SELECT e.EmployeeID, e.FirstName, e.LastName, pr.ReviewDate, pr.PerformanceScore
+FROM PerformanceReviews pr
+JOIN Employees e ON pr.EmployeeID = e.EmployeeID
+WHERE pr.ReviewDate = (
+    SELECT MAX(ReviewDate)
+    FROM PerformanceReviews
+    WHERE EmployeeID = e.EmployeeID
+);
+```
+
+6. **Count the number of employees in each department**
+
+```sql
+SELECT e.DepartmentID, d.DepartmentName, COUNT(e.EmployeeID) AS EmployeeCount
+FROM Employees e
+JOIN Departments d ON e.DepartmentID = d.DepartmentID
+GROUP BY e.DepartmentID, d.DepartmentName;
+```
+
+7. **List all employees who have received a performance score of "Excellent"**
+
+```sql
+SELECT e.EmployeeID, e.FirstName, e.LastName, pr.PerformanceScore
+FROM PerformanceReviews pr
+JOIN Employees e ON pr.EmployeeID = e.EmployeeID
+WHERE pr.PerformanceScore = 'Excellent';
+```
+
+8. **Identify the most frequently used payment method in payroll**
+
+```sql
+SELECT PaymentMethod, COUNT(*) AS Frequency
+FROM Payroll
+GROUP BY PaymentMethod
+ORDER BY Frequency DESC
+LIMIT 1;
+```
+
+9. **Retrieve the top 5 highest-paid employees along with their departments**
+
+```sql
+SELECT e.EmployeeID, e.FirstName, e.LastName, e.Salary, d.DepartmentName
+FROM Employees e
+JOIN Departments d ON e.DepartmentID = d.DepartmentID
+ORDER BY e.Salary DESC
+LIMIT 5;
+```
+
+10. **Show details of all employees who report directly to a specific manager**
+
+```sql
+SELECT e.EmployeeID, e.FirstName, e.LastName, e.Email, e.Phone, e.Salary
+FROM Employees e
+WHERE e.ManagerID = 101;
+```
+
