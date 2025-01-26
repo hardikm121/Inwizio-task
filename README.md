@@ -389,3 +389,200 @@ JOIN Drivers d ON rd.DriverID = d.DriverID
 WHERE rd.RideStatus = 'Cancelled';
 ```
 
+
+# Inwizio-task3
+
+## Retail Store Database Schema
+
+### SQL Commands
+
+#### 1. Create Database and Tables
+
+```sql
+CREATE DATABASE RetailStore;
+USE RetailStore;
+
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    address TEXT,
+    join_date DATE
+);
+
+
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100),
+    category VARCHAR(50),
+    price DECIMAL(10,2),
+    stock_quantity INT
+);
+
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10,2),
+    order_status VARCHAR(20),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+
+CREATE TABLE OrderDetails (
+    order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price DECIMAL(10,2),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    payment_date DATE,
+    payment_amount DECIMAL(10,2),
+    payment_method VARCHAR(20),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+);
+
+
+INSERT INTO Customers (first_name, last_name, email, phone, address, join_date)
+VALUES
+('Rajesh', 'Kumar', 'rajesh.kumar@gmail.com', '9977553210', '123 MG Road, Indore', '2024-01-15'),
+('Priya', 'Sharma', 'priya.sharma@gmail.com', '9777533220', '456 Bandra West, Mumbai', '2024-02-10'),
+('Arjun', 'Verma', 'arjun.verma@gmail.com', '9886543130', '789 Koramangala, Bangalore', '2024-03-05');
+
+
+INSERT INTO Products (product_name, category, price, stock_quantity)
+VALUES
+('Mobile Phone', 'Electronics', 15000.00, 30),
+('LED TV', 'Electronics', 40000.00, 15),
+('Dining Table', 'Furniture', 25000.00, 10),
+('Office Chair', 'Furniture', 5000.00, 50),
+('Notebook', 'Stationery', 50.00, 200);
+
+
+INSERT INTO Orders (customer_id, order_date, total_amount, order_status)
+VALUES
+(1, '2023-03-10', 55000.00, 'Shipped'),
+(2, '2023-03-12', 10000.00, 'Pending'),
+(3, '2023-03-15', 25500.00, 'Shipped');
+
+
+INSERT INTO OrderDetails (order_id, product_id, quantity, unit_price)
+VALUES
+(1, 1, 2, 15000.00),
+(1, 2, 1, 40000.00),
+(2, 4, 2, 5000.00),
+(3, 3, 1, 25000.00),
+(3, 5, 10, 50.00);
+
+
+INSERT INTO Payments (order_id, payment_date, payment_amount, payment_method)
+VALUES
+(1, '2023-03-11', 55000.00, 'UPI'),
+(3, '2023-03-16', 25500.00, 'Credit Card');
+```
+
+#### SQL Queries
+
+1. **Find the Total Number of Orders for Each Customer**
+
+```sql
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, COUNT(o.order_id) AS total_orders
+FROM Customers c
+LEFT JOIN Orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, customer_name; 
+```
+
+2. **Find the Total Sales Amount for Each Product**
+
+```sql
+SELECT p.product_id, p.product_name, SUM(od.quantity * od.unit_price) AS total_revenue
+FROM Products p
+LEFT JOIN OrderDetails od ON p.product_id = od.product_id
+GROUP BY p.product_id, p.product_name;
+```
+
+3. **Find the Most Expensive Product Sold**
+
+```sql
+SELECT p.product_name, od.unit_price AS max_price
+FROM Products p
+JOIN OrderDetails od ON p.product_id = od.product_id
+WHERE od.unit_price = (
+    SELECT MAX(unit_price)
+    FROM OrderDetails
+);
+```
+
+4. **Get the List of Customers Who Have Placed Orders in the Last 30 Days**
+
+```sql
+SELECT DISTINCT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+WHERE o.order_date >= CURDATE() - INTERVAL 30 DAY;
+```
+
+5. **Calculate the Total Amount Paid by Each Customer**
+
+```sql
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, SUM(p.payment_amount) AS total_paid
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+JOIN Payments p ON o.order_id = p.order_id
+GROUP BY c.customer_id, customer_name;
+```
+
+6. **Get the Number of Products Sold by Category**
+
+```sql
+SELECT p.category, SUM(od.quantity) AS total_sold
+FROM Products p
+JOIN OrderDetails od ON p.product_id = od.product_id
+GROUP BY p.category;
+```
+
+7. **List All Orders That Are Pending**
+
+```sql
+SELECT o.order_id, o.order_date, o.total_amount, o.order_status
+FROM Orders o
+WHERE o.order_status = 'Pending';
+```
+
+8. **Find the Average Order Value**
+
+```sql
+SELECT AVG(total_amount) AS average_order_value
+FROM Orders;
+```
+
+9. **List the Top 5 Customers Who Have Spent the Most Money**
+
+```sql
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, SUM(o.total_amount) AS total_spent
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, customer_name
+ORDER BY total_spent DESC
+LIMIT 5;
+```
+
+10. **Find the Products That Have Never Been Sold**
+
+```sql
+SELECT p.product_id, p.product_name
+FROM Products p
+LEFT JOIN OrderDetails od ON p.product_id = od.product_id
+WHERE od.order_id IS NULL;
+```
+
