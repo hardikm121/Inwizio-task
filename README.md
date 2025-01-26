@@ -199,10 +199,10 @@ FROM Enrollments e
 JOIN Courses c ON e.course_id = c.course_id
 WHERE c.course_name = 'Data Structures'
 GROUP BY c.course_name;
+```
 
 
-
-# Inwizio-task1
+ Inwizio-task1
 
 ## University Database Schema
 
